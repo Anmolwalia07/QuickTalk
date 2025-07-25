@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { FaRocket, FaPaperclip, FaComments, FaUserFriends, FaHeart } from "react-icons/fa";
+import { FaComments} from "react-icons/fa";
 import Header from "./Components/Header";
 import Features from "./Components/Features";
 import Hero from "./Components/Hero";

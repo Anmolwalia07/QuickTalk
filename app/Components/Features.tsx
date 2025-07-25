@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaLock, FaMobileAlt, FaPaperclip, FaRocket } from "react-icons/fa";
 export default function Features() {
