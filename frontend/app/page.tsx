@@ -35,7 +35,7 @@ export default function Page() {
         ))}
       </div>
 
-      <Header/>
+      <Header isHome={true}/>
       <Hero/>
       <Features/>
       <Testimonials/>
