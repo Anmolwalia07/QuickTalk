@@ -190,7 +190,7 @@ export default function LoginPage() {
 
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              Don't have an account?
+              Donot have an account?
               <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
                 Create one
               </Link>
