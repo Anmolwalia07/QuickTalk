@@ -95,7 +95,6 @@ export const authOptions: AuthOptions = {
 
     async jwt({ token, user, account }) {
       if (account?.provider === "credentials" && user?.id) {
-        console.log(user)
         token.userId = user.id;
         token.email=user.email
       }
@@ -117,11 +116,9 @@ export const authOptions: AuthOptions = {
       return token;
     },
 
-    async session({ session, token }: { session:Session; token: JWT }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-          session.user.email=token.email
-          //@ts-ignore
-          session.user.id=token.userId
+          session.user.email=String(token.email)
       }
       return session;
     },
@@ -132,3 +129,4 @@ export const authOptions: AuthOptions = {
   },
   debug: process.env.NODE_ENV === "development",
 };
+
