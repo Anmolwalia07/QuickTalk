@@ -28,8 +28,8 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials) return null;
-
         try {
+          console.log({email:credentials.email,password: credentials.password})
           const response = await axios.post(
             `${process.env.NEXT_PUBLIC_Url}/api/user/login`,
             {

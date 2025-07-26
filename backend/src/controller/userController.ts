@@ -1,5 +1,5 @@
 import { Request,Response } from "express"
-import { registerInputValidation } from "../common/validation";
+import { loginInputValidation, registerInputValidation } from "../common/validation";
 import {prisma} from "../db/db"
 import bcrypt from "bcrypt"
 
@@ -42,7 +42,8 @@ export const handleRegister=async(req:Request,res:Response)=>{
 
 export const handleLogin=async(req:Request,res:Response)=>{
     const data=req.body;
-     const result=registerInputValidation(data);
+    console.log(data)
+     const result=loginInputValidation(data);
     if(result.error){
         return res.status(401).json({message:"Invaild Input details"})
     }
