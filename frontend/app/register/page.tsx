@@ -80,9 +80,7 @@ export default function RegisterPage() {
             router.push('/login');
           }
         }).catch((err)=>{
-          if(err){
-            setErrors({...errors,email:`${err.response.data.message}`})
-          }
+          console.log(err)
      })
         setIsLoading(false);
       }, 1500);
