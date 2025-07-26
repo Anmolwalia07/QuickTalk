@@ -1,9 +1,10 @@
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
-import GitHubProvider from "next-auth/providers/github"; // ✅ Added GitHub
+import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-import axios from "axios";
-import { AuthOptions } from "next-auth";
+import axios, { AxiosError } from "axios";
+import { AuthOptions, Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -20,10 +21,10 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.NEXT_PUBLIC_GITHUB_CLIENT_SECRET!,
     }),
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "you@example.com" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials) return null;
@@ -33,7 +34,7 @@ export const authOptions: AuthOptions = {
             `${process.env.NEXT_PUBLIC_Url}/api/user/login`,
             {
               email: credentials.email,
-              password: credentials.password
+              password: credentials.password,
             }
           );
 
@@ -42,21 +43,21 @@ export const authOptions: AuthOptions = {
               id: response.data.id.toString(),
               email: response.data.email,
               name: response.data.name || "",
-              image: response.data.image || ""
+              image: response.data.image || "",
             };
           }
           return null;
-        } catch (error) {
+        } catch (error: unknown) {
           console.error("Credentials login error:", error);
           return null;
         }
       },
-    })
+    }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
-    error: "/login?error=authentication"
+    error: "/login?error=authentication",
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -69,8 +70,8 @@ export const authOptions: AuthOptions = {
           );
 
           if (response.status === 201) return true;
-        } catch (error: any) {
-          if (error.response?.status === 401) {
+        } catch (error: unknown) {
+          if (axios.isAxiosError(error) && error.response?.status === 401) {
             try {
               const registerResponse = await axios.post(
                 `${process.env.NEXT_PUBLIC_Url}/api/user/register`,
@@ -78,11 +79,11 @@ export const authOptions: AuthOptions = {
                   email: user.email,
                   name: user.name || "",
                   password: null,
-                  image: user.image || ""
+                  image: user.image || "",
                 }
               );
               return registerResponse.status === 201;
-            } catch (registerError) {
+            } catch (registerError: unknown) {
               console.error("Social registration error:", registerError);
               return false;
             }
@@ -93,10 +94,12 @@ export const authOptions: AuthOptions = {
 
       return false;
     },
+
     async jwt({ token, user, account }) {
       if (account?.provider === "credentials" && user?.id) {
         token.userId = user.id;
       }
+
       if (["google", "facebook", "github"].includes(account?.provider ?? "") && user?.email) {
         try {
           const response = await axios.get(
@@ -106,22 +109,24 @@ export const authOptions: AuthOptions = {
           if (response.status === 201) {
             token.userId = response.data.id;
           }
-        } catch (error) {
+        } catch (error: unknown) {
           console.error("JWT callback error:", error);
         }
       }
 
       return token;
     },
-    async session({ session, token }:any) {
+
+    async session({ session, token }: { session: Session|any; token: JWT }) {
       if (session.user) {
-        session.user.id = token.userId;
+        session.user.id = token.userId
       }
       return session;
-    }
+    },
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  debug: process.env.NODE_ENV === "development",
 };
