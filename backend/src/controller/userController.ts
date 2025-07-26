@@ -10,15 +10,15 @@ export const handleRegister=async(req:Request,res:Response)=>{
         return res.status(401).json({message:"Invaild Input details"})
     }
     const {name,email,password}=result.data;
-    // const existUser=await prisma.user.findFirst({
-    //     where:{
-    //         email
-    //     }
-    // })
+    const existUser=await prisma.user.findFirst({
+        where:{
+            email
+        }
+    })
 
-    // if(existUser){
-    //     return res.status(401).json({message:"Email already exists"})
-    // }
+    if(existUser){
+        return res.status(401).json({message:"Email already exists"})
+    }
 
     const hashPassword=await bcrypt.hash(password,10);
     try{
@@ -29,10 +29,9 @@ export const handleRegister=async(req:Request,res:Response)=>{
                 password:hashPassword
             }
         })
-
+        
         return res.status(201).json({message:"Register successfully"})
     }catch(err){
-        console.log(err)
-       return res.status(401).json({message:err})
+       return res.status(401).json({message:"Internal Server error"})
     }
 }
