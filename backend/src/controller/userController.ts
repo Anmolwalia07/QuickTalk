@@ -42,7 +42,6 @@ export const handleRegister=async(req:Request,res:Response)=>{
 
 export const handleLogin=async(req:Request,res:Response)=>{
     const data=req.body;
-    console.log(data)
      const result=loginInputValidation(data);
     if(result.error){
         return res.status(401).json({message:"Invaild Input details"})
@@ -64,6 +63,7 @@ export const handleLogin=async(req:Request,res:Response)=>{
     if(!isMatch){
         return res.status(401).json({message:"Invaild password"});
     }
+
     return res.status(201).json({id:existUser.id,email:existUser.email});
     }catch(err){
         return res.status(401).json({message:"Internal Server error"})

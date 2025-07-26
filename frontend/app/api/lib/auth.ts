@@ -40,7 +40,7 @@ export const authOptions: AuthOptions = {
 
           if (response.status === 201) {
             return {
-              id: response.data.id,
+              id: response.data?.id.toString(),
               email: response.data.email,
             };
           }
