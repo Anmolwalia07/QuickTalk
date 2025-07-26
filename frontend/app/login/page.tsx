@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Header from '../Components/Header';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import Loading from '../Components/Loading';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,6 +44,7 @@ export default function LoginPage() {
   const router=useRouter()
   return (
    <>
+   {isLoading && <Loading/>}
    <Header isHome={false}/>
     <div className="flex  flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
     <div className='w-full flex justify-start bg-transparent'>
