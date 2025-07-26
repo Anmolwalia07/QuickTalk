@@ -2,7 +2,7 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { AuthOptions, Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
@@ -40,7 +40,7 @@ export const authOptions: AuthOptions = {
 
           if (response.status === 201) {
             return {
-              id: response.data.id.toString(),
+              id: response.data.id,
               email: response.data.email,
               name: response.data.name || "",
               image: response.data.image || "",
@@ -98,6 +98,7 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user, account }) {
       if (account?.provider === "credentials" && user?.id) {
         token.userId = user.id;
+        token.email=user.email
       }
 
       if (["google", "facebook", "github"].includes(account?.provider ?? "") && user?.email) {
@@ -117,9 +118,9 @@ export const authOptions: AuthOptions = {
       return token;
     },
 
-    async session({ session, token }: { session: Session|any; token: JWT }) {
+    async session({ session, token }: { session:Session; token: JWT }) {
       if (session.user) {
-        session.user.id = token.userId
+        session.user.email=token.email
       }
       return session;
     },
