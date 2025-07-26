@@ -1,10 +1,11 @@
 "use client"
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaGoogle, FaGithub, FaTwitter, FaArrowLeft } from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaGoogle, FaGithub, FaFacebook, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import Header from '../Components/Header';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +14,7 @@ export default function LoginPage() {
     password: ''
   });
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,9 +24,20 @@ export default function LoginPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     console.log('Login form submitted:', formData);
+      setIsLoading(true);
+        const res = await signIn("credentials", { 
+            email:formData.email, 
+            password:formData.password, 
+            callbackUrl: "/dashboard" 
+        }); 
+        
+        if(res) {
+            setIsLoading(false);
+        }
+
   };
 
   const router=useRouter()
@@ -165,6 +178,9 @@ export default function LoginPage() {
 
             <div className="mt-6 grid grid-cols-3 gap-3">
               <motion.button
+              onClick={()=>{
+                  signIn('google', { callbackUrl: '/dashboard' })
+              }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -172,6 +188,7 @@ export default function LoginPage() {
                 <FaGoogle className="text-red-500 text-xl" />
               </motion.button>
               <motion.button
+                onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -179,11 +196,12 @@ export default function LoginPage() {
                 <FaGithub className="text-gray-800 text-xl" />
               </motion.button>
               <motion.button
+                onClick={() => signIn('facebook', { callbackUrl: '/dashboard' })}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                <FaTwitter className="text-blue-400 text-xl" />
+                <FaFacebook className="text-blue-400 text-xl" />
               </motion.button>
             </div>
           </div>

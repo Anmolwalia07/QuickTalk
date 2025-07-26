@@ -1,10 +1,13 @@
 "use client"
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaEnvelope, FaGoogle, FaGithub, FaTwitter, FaArrowLeft } from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaEnvelope, FaGoogle, FaGithub, FaArrowLeft, FaFacebook } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '../Components/Header';
+import axios from 'axios';
+import Loading from '../Components/Loading';
+import { signIn } from 'next-auth/react';
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,20 +15,18 @@ export default function RegisterPage() {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
   });
   const [errors, setErrors] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const validateForm = () => {
     let valid = true;
-    const newErrors = { name: '', email: '', password: '', confirmPassword: '' };
+    const newErrors = { name: '', email: '', password: ''};
 
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
@@ -48,10 +49,6 @@ export default function RegisterPage() {
       valid = false;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-      valid = false;
-    }
 
     setErrors(newErrors);
     return valid;
@@ -64,7 +61,6 @@ export default function RegisterPage() {
       [name]: value
     }));
     
-    // Clear error when user starts typing
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({
         ...prev,
@@ -75,23 +71,27 @@ export default function RegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (validateForm()) {
       setIsLoading(true);
-      
-      // Simulate registration process
-      setTimeout(() => {
+        setTimeout(() => {
         console.log('Registration form submitted:', formData);
+        axios.post(`${process.env.NEXT_PUBLIC_Url}/api/user/register`,formData).then((res)=>{
+          if(res.status===201){
+            router.push('/login');
+          }
+        }).catch((err)=>{
+          if(err){
+            setErrors({...errors,email:`${err.response.data.message}`})
+          }
+     })
         setIsLoading(false);
-        
-        // Redirect to dashboard after successful registration
-        router.push('/chat');
       }, 1500);
     }
   };
 
   return (
     <>
+    {isLoading && <Loading/>}
     <Header isHome={false}/>
     <div className="flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100 p-1 pb-5">
       <div className='w-full flex justify-start bg-transparent'>
@@ -177,7 +177,7 @@ export default function RegisterPage() {
                     placeholder="you@example.com"
                   />
                   {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                    <p className="text-red-500 text-sm mt-2">{errors.email}</p>
                   )}
                 </div>
               </div>
@@ -269,6 +269,8 @@ export default function RegisterPage() {
 
               <div className="mt-5 grid grid-cols-3 gap-3">
                 <motion.button
+                  onClick={()=> signIn('google', { callbackUrl: '/dashboard' })}
+
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -276,6 +278,7 @@ export default function RegisterPage() {
                   <FaGoogle className="text-red-500 text-xl" />
                 </motion.button>
                 <motion.button
+                onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -283,11 +286,12 @@ export default function RegisterPage() {
                   <FaGithub className="text-gray-800 text-xl" />
                 </motion.button>
                 <motion.button
+                 onClick={() => signIn('facebook', { callbackUrl: '/dashboard' })}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
-                  <FaTwitter className="text-blue-400 text-xl" />
+                  <FaFacebook className="text-blue-400 text-xl" />
                 </motion.button>
               </div>
             </div>
