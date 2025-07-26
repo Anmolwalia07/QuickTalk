@@ -42,8 +42,6 @@ export const authOptions: AuthOptions = {
             return {
               id: response.data.id,
               email: response.data.email,
-              name: response.data.name || "",
-              image: response.data.image || "",
             };
           }
           return null;
@@ -54,7 +52,7 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET||"secret",
   pages: {
     signIn: "/login",
     error: "/login?error=authentication",
@@ -97,6 +95,7 @@ export const authOptions: AuthOptions = {
 
     async jwt({ token, user, account }) {
       if (account?.provider === "credentials" && user?.id) {
+        console.log(user)
         token.userId = user.id;
         token.email=user.email
       }
@@ -120,14 +119,16 @@ export const authOptions: AuthOptions = {
 
     async session({ session, token }: { session:Session; token: JWT }) {
       if (session.user) {
-        session.user.email=token.email
+          session.user.email=token.email
+          //@ts-ignore
+          session.user.id=token.userId
       }
       return session;
     },
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
   debug: process.env.NODE_ENV === "development",
 };
