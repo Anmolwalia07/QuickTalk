@@ -112,6 +112,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
         phone: true,
         image: true,
         bio: true,
+        isOnline: true,
         sentMessages: true,
         receivedMessages: true,
         sentRequests: {
@@ -124,10 +125,28 @@ export const getUserDetails = async (req: Request, res: Response) => {
                 email: true,
                 image: true,
                 bio: true,
+                isOnline: true,
+                sentMessages: {
+                  select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    senderId: true,
+                    receiverId: true,
+                  },
+                },
+                receivedMessages: {
+                  select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    senderId: true,
+                    receiverId: true,
+                  },
+                },
               },
             },
           },
-          orderBy: { createdAt: "desc" },
         },
         receivedRequests: {
           where: { request: "Accepted" },
@@ -139,10 +158,28 @@ export const getUserDetails = async (req: Request, res: Response) => {
                 email: true,
                 image: true,
                 bio: true,
+                isOnline: true,
+                sentMessages: {
+                  select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    senderId: true,
+                    receiverId: true,
+                  },
+                },
+                receivedMessages: {
+                  select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    senderId: true,
+                    receiverId: true,
+                  },
+                },
               },
             },
           },
-          orderBy: { createdAt: "desc" },
         },
       },
     });
@@ -151,19 +188,54 @@ export const getUserDetails = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Invalid Email" });
     }
 
-    const friends = [
+    const friendsRaw = [
       ...user.sentRequests.map((f) => f.friend),
       ...user.receivedRequests.map((f) => f.user),
     ];
 
+    const contacts = friendsRaw.map((friend) => {
+      const allMessages = [
+        ...friend.sentMessages.filter(
+          (m) => m.receiverId === user.id || m.senderId === user.id
+        ),
+        ...friend.receivedMessages.filter(
+          (m) => m.receiverId === user.id || m.senderId === user.id
+        ),
+      ];
+
+      const sortedMessages = allMessages.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      const lastMessage = sortedMessages[0];
+
+      return {
+        id: friend.id,
+        name: friend.name,
+        lastMessage: lastMessage ? lastMessage.message : "Start chatting",
+        time: lastMessage
+          ? new Date(lastMessage.createdAt).toLocaleString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+              weekday: "short",
+            })
+          : "",
+        unread: 0, 
+        online: friend.isOnline,
+      };
+    });
+
     const { sentRequests, receivedRequests, ...userData } = user;
 
-    return res.status(200).json({ user: userData, friends });
+    return res.status(200).json({ user: userData, contacts });
   } catch (err) {
-    console.error("Error fetching user details:", err);
+    console.error(err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 
 
@@ -241,3 +313,5 @@ export const acceptRequest = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+

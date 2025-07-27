@@ -1,16 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FaSearch, FaPlus, FaComments } from "react-icons/fa";
+import { FaSearch, FaComments } from "react-icons/fa";
+import { Contact, useUser } from "../(dashboard)/context";
 
-interface Contact {
-  id: number;
-  name: string;
-  lastMessage: string;
-  time: string;
-  unread: number;
-  online: boolean;
-}
+
 
 interface SidebarProps {
   onContactSelect: (contact: Contact) => void;
@@ -20,21 +14,13 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onContactSelect, darkMode }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const contacts: Contact[] = [
-    { id: 1, name: "Alex Johnson", lastMessage: "See you tomorrow!", time: "10:30 AM", unread: 0, online: true },
-    { id: 2, name: "Sarah Williams", lastMessage: "Thanks for the help!", time: "9:15 AM", unread: 3, online: false },
-    { id: 3, name: "Michael Chen", lastMessage: "Did you see the new design?", time: "Yesterday", unread: 0, online: true },
-    { id: 4, name: "Emma Thompson", lastMessage: "Meeting at 3pm", time: "Yesterday", unread: 0, online: true },
-    { id: 5, name: "David Miller", lastMessage: "Check this out...", time: "Wednesday", unread: 0, online: false },
-    { id: 6, name: "Jennifer Lopez", lastMessage: "Party this weekend?", time: "Tuesday", unread: 1, online: true },
-    { id: 7, name: "Robert Garcia", lastMessage: "Project update", time: "Monday", unread: 0, online: false },
-    { id: 8, name: "Jennifer Lopez", lastMessage: "Party this weekend?", time: "Tuesday", unread: 1, online: true },
-  ];
+  const contacts: Contact[] = useUser().contacts
 
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  
   return (
     <div className={`w-full lg:w-1/4  h-full flex flex-col py-4 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} sm:rounded-xl`}>
       <div className="p-4">
@@ -53,7 +39,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onContactSelect, darkMode }) => {
           />
         </div>
       </div>
-
 
       <div className="flex-1 overflow-y-auto space-y-1">
         {filteredContacts.length > 0 ? (

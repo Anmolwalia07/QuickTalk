@@ -1,65 +1,69 @@
-"use client"
-import { createContext, useContext, useState } from "react";
+"use client";
+import React, { createContext, useContext, useState } from "react";
 
-export type UserContextType = {
+export interface Message {
   id: string;
+  message: string;
+  createdAt: Date;
+  senderId: string;
+  receiverId: string;
+}
+
+export interface Contact {
+  id: string;
+  name: string;
+  lastMessage: string;
+  time: string;
+  unread: number;
+  online: boolean;
+}
+
+export interface UserData {
+  id: string;
+  name: string;
   email: string;
   phone: string;
-  createdAt:Date;
-  sentMessages: {
-    id: string;
-    senderId: string;
-    receiverId: string;
-    message: string;
-    createdAt:Date;
-  }[];
-  receivedMessages: {
-    id: string;
-    senderId: string;
-    receiverId: string;
-    message: string;
-    createdAt:Date;
+  image: string;
+  bio: string;
+  isOnline: boolean;
+  sentMessages: Message[];
+  receivedMessages: Message[];
+}
 
-  }[];
-  friends: {
-    friend: {
-      id: string;
-      email: string;
-      phone: string;
-      image: string;
-      name: string;
-    };
-  }[];
-};
+export interface UserContextType {
+  user: UserData;
+  contacts: Contact[];
+  setUser: (user: UserData) => void;
+  setContacts: (contacts: Contact[]) => void;
+  darkMode:boolean;
+  setDarkMode:(darkMode:boolean)=>void;
+}
 
+const UserContext = createContext<UserContextType | undefined>(undefined);
 
-type UserContextValue = {
-  userDetails: UserContextType;
-  setUserDetails: React.Dispatch<React.SetStateAction<UserContextType>>;
-};
-
-export const UserContext = createContext<UserContextValue | null>(null);
-
-export default function ContextProvider({
-  user,
-  children,
-}: {
-  user: UserContextType;
-  children: React.ReactNode;
-}) {
-  const [userDetails, setUserDetails] = useState(user);
-
+export const UserProvider = ({ user, children ,contact,dark}: { user: UserData; children: React.ReactNode ;contact:Contact[],dark:boolean}) => {
+  const [userState, setUserState] = useState<UserData>(user);
+  const [contacts, setContacts] = useState<Contact[]>(contact);
+  const [darkMode, setDarkMode] = useState<boolean>(dark);
+  
   return (
-    <UserContext.Provider value={{ userDetails, setUserDetails }}>
+    <UserContext.Provider
+      value={{
+        user: userState,
+        contacts,
+        setUser: setUserState,
+        setContacts,
+        darkMode,
+        setDarkMode,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
-}
+};
 
-export function useUser() {
+export const useUser = () => {
   const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser must be used within a ContextProvider");
-  }
+  if (!context) throw new Error("useUserContext must be used within UserProvider");
   return context;
-}
+};

@@ -22,6 +22,7 @@ model User {
   receivedRequests  Friend[]   @relation("friendOf")
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @default(now())
+   isOnline          Boolean    @default(false) 
 }
 
 model Messages {
@@ -31,6 +32,7 @@ model Messages {
   receiverId String   @db.ObjectId
   receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
   message    String
+  createdAt  DateTime  @default(now())
 }
 
 model Friend {
