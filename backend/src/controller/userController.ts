@@ -1,5 +1,5 @@
 import { Request,Response } from "express"
-import { loginInputValidation, registerInputValidation } from "../common/validation";
+import { addFriendInput, loginInputValidation, registerInputValidation } from "../common/validation";
 import {prisma} from "../db/db"
 import bcrypt from "bcrypt"
 
@@ -93,3 +93,151 @@ export const getDetails=async(req:Request,res:Response)=>{
         return res.status(401).json({message:"Internal Server error"})
     }
 }
+
+
+export const getUserDetails = async (req: Request, res: Response) => {
+  const email = req.params.email;
+
+  if (!email) {
+    return res.status(400).json({ message: "Invalid input details" });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        image: true,
+        bio: true,
+        sentMessages: true,
+        receivedMessages: true,
+        sentRequests: {
+          where: { request: "Accepted" },
+          select: {
+            friend: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                bio: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+        receivedRequests: {
+          where: { request: "Accepted" },
+          select: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                bio: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Invalid Email" });
+    }
+
+    const friends = [
+      ...user.sentRequests.map((f) => f.friend),
+      ...user.receivedRequests.map((f) => f.user),
+    ];
+
+    const { sentRequests, receivedRequests, ...userData } = user;
+
+    return res.status(200).json({ user: userData, friends });
+  } catch (err) {
+    console.error("Error fetching user details:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
+export const addFriend = async (req: Request, res: Response) => {
+  const { userId, friendId, request } = req.body;
+
+  if (!userId || !friendId || !request) {
+    return res.status(400).json({ message: "Invalid input details" });
+  }
+
+  try {
+    const existingFriend = await prisma.friend.findFirst({
+      where: {
+        userId,
+        friendId,
+      },
+    });
+
+    if (existingFriend) {
+      return res.status(409).json({ message: "Friend request already exists" });
+    }
+
+    const newRequest = await prisma.friend.create({
+      data: {
+        userId,
+        friendId,
+        request,
+      },
+      include: {
+        user: true,
+        friend: true,
+      },
+    });
+
+    return res.status(201).json({ message: "Friend request sent", data: newRequest });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+export const acceptRequest = async (req: Request, res: Response) => {
+  const { requestId } = req.body;
+
+  if (!requestId) {
+    return res.status(400).json({ message: "Request ID is required" });
+  }
+
+  try {
+    const friendRequest = await prisma.friend.findUnique({
+      where: { id: requestId },
+    });
+
+    if (!friendRequest) {
+      return res.status(404).json({ message: "Friend request not found" });
+    }
+
+    const updatedRequest = await prisma.friend.update({
+      where: { id: requestId },
+      data: { request: "Accepted" },
+      include: {
+        user: true,
+        friend: true,
+      },
+    });
+
+    return res.status(200).json({
+      message: "Friend request accepted successfully",
+      data: updatedRequest,
+    });
+
+  } catch (err) {
+    console.error("Error accepting request:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

@@ -19,3 +19,13 @@ export const loginInputValidation = (data: unknown) => {
   });
   return Input.safeParse(data);
 };
+
+
+
+export const addFriendInput = (data: unknown) => {
+  const Input = z.object({
+    friendId: z.string().min(12),
+    request: z.string(),
+  });
+  return Input.safeParse(data);
+};

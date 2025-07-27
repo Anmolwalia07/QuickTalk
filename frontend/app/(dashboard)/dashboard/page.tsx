@@ -1,12 +1,7 @@
-import { authOptions } from "@/app/api/lib/auth"
-import { getServerSession } from "next-auth"
-
-export default async function page() {
-    const session=await getServerSession(authOptions)
-    if(session?.user){
-        // console.log(session.user)
-    }
+export default function HomePage() {
   return (
-    <div>page</div>
-  )
+    <main className="flex items-center justify-center h-full w-full">
+      <h1 className="text-3xl font-bold">Welcome to the Main Page</h1>
+    </main>
+  );
 }

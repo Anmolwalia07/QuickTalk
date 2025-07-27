@@ -1,9 +1,10 @@
-import express from "express";
+import express,{Request} from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import { WebSocketServer, WebSocket } from "ws";
 import cors from "cors"
 import userRoutes from "./routes/userRoutes"
+import cookieparser from "cookie-parser"
 
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(cors({
  credentials:true, 
 }))
 
+app.use(cookieparser());
 
 app.use("/api/user",userRoutes)
 

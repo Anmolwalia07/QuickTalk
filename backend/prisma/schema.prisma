@@ -9,16 +9,19 @@ datasource db {
 }
 
 model User {
-  id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  email      String     @unique
-  name       String     @default(" ")
-  password   String?
-  bio        String     @default("...")
-  image      String     @default("")
-  sentMessages     Messages[] @relation("SentMessages")
-  receivedMessages Messages[] @relation("ReceivedMessages")
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @default(now())
+  id                String     @id @default(auto()) @map("_id") @db.ObjectId
+  email             String     @unique
+  name              String     @default(" ")
+  password          String?
+  bio               String     @default("...")
+  image             String     @default("")
+  phone             String     @default("")
+  sentMessages      Messages[] @relation("SentMessages")
+  receivedMessages  Messages[] @relation("ReceivedMessages")
+  sentRequests      Friend[]   @relation("userFriends")
+  receivedRequests  Friend[]   @relation("friendOf")
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @default(now())
 }
 
 model Messages {
@@ -28,4 +31,23 @@ model Messages {
   receiverId String   @db.ObjectId
   receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
   message    String
+}
+
+model Friend {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String        @db.ObjectId   
+  user       User          @relation("userFriends", fields: [userId], references: [id])
+
+  friendId   String        @db.ObjectId   
+  friend     User          @relation("friendOf", fields: [friendId], references: [id])
+
+  request    RequestStatus
+  createdAt  DateTime      @default(now())
+}
+
+enum RequestStatus {
+  Pending
+  Accepted
+  Rejected
+  Blocked
 }
