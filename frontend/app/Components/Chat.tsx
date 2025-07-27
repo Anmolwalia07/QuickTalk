@@ -45,7 +45,7 @@ export default function Chat() {
   useEffect(() => {
     if (!id || !user?.id) return;
 
-    const socket = new WebSocket("ws://localhost:8080");
+    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_Ws}`);
     socketRef.current = socket;
 
     socket.onopen = () => {
