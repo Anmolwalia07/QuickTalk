@@ -23,7 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [darkMode, setDarkMode] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const ctx=useUser();
-  const user=ctx.userDetails;
+  const [user,setUser]=useState<UserContextType|null>(null)
   const setUserDetails=ctx.setUserDetails
   const router = useRouter();
 
@@ -38,7 +38,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${data.user.email}`)
         .then((res) => {
           if (res.status === 200) {
-            console.log(res.data.user)
+            setUser(res.data.user)
             setUserDetails({
           ...res.data.user,
           friends: res.data.friend,
