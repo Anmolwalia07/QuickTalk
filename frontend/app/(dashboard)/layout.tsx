@@ -7,7 +7,7 @@ import { redirect, useRouter } from "next/navigation";
 import Loading from "../Components/LoadingForUi";
 import { FaX } from "react-icons/fa6";
 import axios from "axios";
-import ContextProvider,{UserContextType} from "./context";
+import ContextProvider,{UserContextType, useUser} from "./context";
 
 interface Contact {
   id: number;
@@ -22,7 +22,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { status, data } = useSession();
   const [darkMode, setDarkMode] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [user, setUser] = useState<UserContextType | null>(null);
+  const ctx=useUser();
+  const user=ctx.userDetails;
+  const setUserDetails=ctx.setUserDetails
   const router = useRouter();
 
   useEffect(() => {
@@ -37,7 +39,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         .then((res) => {
           if (res.status === 200) {
             console.log(res.data.user)
-            setUser(res.data.user);
+            setUserDetails({
+          ...res.data.user,
+          friends: res.data.friend,
+          });
+
           }
         })
         .catch(console.error);
