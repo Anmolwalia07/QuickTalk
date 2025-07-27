@@ -7,7 +7,7 @@ import { redirect, useRouter } from "next/navigation";
 import Loading from "../Components/LoadingForUi";
 import { FaX } from "react-icons/fa6";
 import axios from "axios";
-import ContextProvider,{UserContextType, useUser} from "./context";
+import ContextProvider,{UserContextType} from "./context";
 
 interface Contact {
   id: number;
@@ -22,9 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { status, data } = useSession();
   const [darkMode, setDarkMode] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const ctx=useUser();
-  const [user,setUser]=useState<UserContextType|null>(null)
-  const setUserDetails=ctx.setUserDetails
+  const [user, setUser] = useState<UserContextType | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -38,12 +36,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${data.user.email}`)
         .then((res) => {
           if (res.status === 200) {
-            setUser(res.data.user)
-            setUserDetails({
-          ...res.data.user,
-          friends: res.data.friend,
-          });
-
+            console.log(res.data.user)
+            setUser({...res.data.user,
+              friends:res.data.friend});
           }
         })
         .catch(console.error);
