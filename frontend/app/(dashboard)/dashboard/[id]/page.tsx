@@ -3,7 +3,7 @@ import Chat from "@/app/Components/Chat";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -11,5 +11,5 @@ export default async function Page({ params }: { params: { id: string } }) {
     return null;
   }
 
-  return <Chat chatId={params.id} />;
+  return <Chat />;
 }

@@ -1,8 +1,8 @@
 import { IoSend } from "react-icons/io5";
 
-export default function Chat({chatId}:{chatId:string}) {
+export default function Chat() {
   return (
-     <main className="flex flex-col h-full w-full bg-white" key={chatId}>
+     <main className="flex flex-col h-full w-full bg-white">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center gap-4">
       <img
