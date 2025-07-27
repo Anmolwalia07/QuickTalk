@@ -35,14 +35,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       axios
         .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${data.user.email}`)
         .then((res) => {
-          if (res.status === 201) {
+          if (res.status === 200) {
             console.log(res.data.user)
             setUser(res.data.user);
           }
         })
         .catch(console.error);
     }
-  }, [data?.user?.email]);
+  }, [data]);
 
   useEffect(() => {
     localStorage.setItem("dark", String(darkMode));
