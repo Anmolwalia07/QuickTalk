@@ -14,7 +14,7 @@ export default async function Page({ params }: PageProps) {
     return redirect("/login");
   }
 
-  const { id } =await params;
+  const { id } = params;
 
   return <Chat chatId={id} />;
 }
