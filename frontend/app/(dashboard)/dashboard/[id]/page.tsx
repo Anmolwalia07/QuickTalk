@@ -1,7 +1,7 @@
 "use client"
 import { IoSend } from "react-icons/io5";
 
-export default function Page({ params }: { params: { id: string } }) {
+export default function Page({ params }: { params: { id: unknown } }) {
   const { id } = params;
   return (
     <main className="flex flex-col h-full w-full bg-white">
