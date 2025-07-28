@@ -13,6 +13,7 @@ export default function Chat() {
 
   const router=useRouter();
 
+
   const [messages, setMessages] = useState<
     { sender: "me" | "other"; text: string }[]
   >([]);

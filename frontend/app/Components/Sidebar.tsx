@@ -1,15 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FaSearch, FaComments } from "react-icons/fa";
 import { Contact, useUser } from "../(dashboard)/context";
 import {useRouter} from "next/navigation"
+import axios from "axios";
 
-
-
-// interface SidebarProps {
-//   darkMode: boolean;
-// }
 
 const Sidebar = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,13 +16,39 @@ const Sidebar = () => {
 
   const darkMode=useUser().darkMode;
 
-  const contacts: Contact[] = useUser().contacts
+  const setContacts=useUser().setContacts
+ 
+
+  const userId=useUser().user.id
+  
+   useEffect(() => {
+        const fetchContacts = () => {
+          axios
+            .get(`${process.env.NEXT_PUBLIC_Url}/api/user/getContacts/${userId}`)
+            .then((res) => {
+              if (res.status === 200) {
+                setContacts(res.data.contacts);
+              }
+            })
+            .catch((err) => {
+              console.error("Failed to fetch contacts:", err);
+            });
+        };
+  
+        fetchContacts(); // Initial fetch
+  
+        const interval = setInterval(() => {
+          fetchContacts();
+        }, 5000); // Fetch every 5 seconds
+  
+        return () => clearInterval(interval); // Cleanup on unmount
+      }, []);
+  
+   const contacts: Contact[] = useUser().contacts
 
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  
   return (
     <div className={`w-full   h-full flex flex-col py-4 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} sm:rounded-xl`}>
       <div className="p-4">

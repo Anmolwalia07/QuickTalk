@@ -315,3 +315,133 @@ export const acceptRequest = async (req: Request, res: Response) => {
 };
 
 
+export const getContacts = async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  if (!id) {
+    return res.status(400).json({ message: "Invalid input details" });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        sentRequests: {
+          where: { request: "Accepted" },
+          select: {
+            friend: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                bio: true,
+                isOnline: true,
+                sentMessages: {
+                  select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    senderId: true,
+                    receiverId: true,
+                  },
+                },
+                receivedMessages: {
+                  select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    senderId: true,
+                    receiverId: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        receivedRequests: {
+          where: { request: "Accepted" },
+          select: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                bio: true,
+                isOnline: true,
+                sentMessages: {
+                  select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    senderId: true,
+                    receiverId: true,
+                  },
+                },
+                receivedMessages: {
+                  select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    senderId: true,
+                    receiverId: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const friendsRaw = [
+      ...user.sentRequests.map((f) => f.friend),
+      ...user.receivedRequests.map((f) => f.user),
+    ];
+
+    const contacts = friendsRaw.map((friend) => {
+      const allMessages = [
+        ...friend.sentMessages.filter(
+          (m) => m.receiverId === user.id || m.senderId === user.id
+        ),
+        ...friend.receivedMessages.filter(
+          (m) => m.receiverId === user.id || m.senderId === user.id
+        ),
+      ];
+
+      const sortedMessages = allMessages.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      const lastMessage = sortedMessages[0];
+
+      return {
+        id: friend.id,
+        name: friend.name,
+        lastMessage: lastMessage ? lastMessage.message : "Start chatting",
+        time: lastMessage
+          ? new Date(lastMessage.createdAt).toLocaleString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+              weekday: "short",
+            })
+          : "",
+        unread: 0,
+        online: friend.isOnline,
+      };
+    });
+
+    return res.status(200).json({ contacts });
+  } catch (error) {
+    console.error("Error fetching contacts:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

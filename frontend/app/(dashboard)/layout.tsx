@@ -24,6 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       setDarkMode(saved === "true");
     }
 
+    // isko function banke thik krna h online hone mai dikht aari
     if (data?.user?.email) {
       axios
         .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${data.user.email}`)
@@ -41,6 +42,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [data]);
 
+
+
   useEffect(() => {
     localStorage.setItem("dark", String(darkMode));
   }, [darkMode]);
@@ -49,7 +52,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     await signOut({ callbackUrl: "/" });
   };
 
- 
 
 
   if (status === "loading" || !user || !contacts) {
