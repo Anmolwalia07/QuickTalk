@@ -18,6 +18,7 @@ export default function Theme({darkMode,setDarkMode}:{darkMode:boolean,setDarkMo
           ) : (
           <FaMoon className="" />
           )}
+          <span className="flex md:hidden">Theme</span>
     </button>
   )
 }

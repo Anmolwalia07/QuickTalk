@@ -3,16 +3,22 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaSearch, FaComments } from "react-icons/fa";
 import { Contact, useUser } from "../(dashboard)/context";
+import {useRouter} from "next/navigation"
 
 
 
-interface SidebarProps {
-  onContactSelect: (contact: Contact) => void;
-  darkMode: boolean;
-}
+// interface SidebarProps {
+//   darkMode: boolean;
+// }
 
-const Sidebar: React.FC<SidebarProps> = ({ onContactSelect, darkMode }) => {
+const Sidebar = () => {
   const [searchTerm, setSearchTerm] = useState("");
+    const router = useRouter();
+   const handleContactSelect = (contact: Contact) => {
+    router.push(`/dashboard/${contact.id}`);
+  };
+
+  const darkMode=useUser().darkMode;
 
   const contacts: Contact[] = useUser().contacts
 
@@ -22,7 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onContactSelect, darkMode }) => {
 
   
   return (
-    <div className={`w-full lg:w-1/4  h-full flex flex-col py-4 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} sm:rounded-xl`}>
+    <div className={`w-full   h-full flex flex-col py-4 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} sm:rounded-xl`}>
       <div className="p-4">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -38,6 +44,41 @@ const Sidebar: React.FC<SidebarProps> = ({ onContactSelect, darkMode }) => {
             }`}
           />
         </div>
+        <div className="px-4 mt-3 flex flex-col gap-2">
+          <div className="flex gap-3">
+            <button
+              onClick={() => router.push("create-room")}
+              className={`flex-1 rounded-lg text-sm font-medium transition-colors ${
+                darkMode
+                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                  : "bg-blue-100 hover:bg-blue-200 text-blue-800"
+              }`}
+            >
+              Create Room
+            </button>
+            <button
+              onClick={() => router.push("/join-room")}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                darkMode
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-green-100 hover:bg-green-200 text-green-800"
+              }`}
+            >
+               Join Room
+            </button>
+          </div>
+          <button
+            onClick={() => router.push("/add-friend")}
+            className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${
+              darkMode
+                ? "bg-purple-600 hover:bg-purple-700 text-white"
+                : "bg-purple-100 hover:bg-purple-200 text-purple-800"
+            }`}
+          >
+             Add Friend
+          </button>
+        </div>
+
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1">
@@ -48,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onContactSelect, darkMode }) => {
               className={`flex items-center p-3 cursor-pointer ${
                 darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
               }`}
-              onClick={() =>  onContactSelect(contact)}
+              onClick={() =>  handleContactSelect(contact)}
             >
               <div className="relative">
                 <div className={`${darkMode ? 'bg-gray-600' : 'bg-gray-200'} rounded-xl w-12 h-12 flex items-center justify-center`}>

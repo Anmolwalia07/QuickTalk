@@ -1,5 +1,6 @@
 import { authOptions } from "@/app/api/lib/auth";
 import Chat from "@/app/Components/Chat";
+import Sidebar from "@/app/Components/Sidebar";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
@@ -9,5 +10,10 @@ export default async function Page() {
     redirect("/login");
   }
 
-  return <Chat />;
+  return (
+    <div className="w-full flex">
+    <div className="w-1/4 md:flex hidden "><Sidebar/></div>
+    <Chat/>
+    </div>
+  )
 }

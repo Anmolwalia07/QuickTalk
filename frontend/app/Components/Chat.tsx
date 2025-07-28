@@ -1,14 +1,17 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { IoSend } from "react-icons/io5";
 import { useUser } from "../(dashboard)/context";
+import { FaX } from "react-icons/fa6";
 
 export default function Chat() {
   const { id } = useParams();
   const { user, contacts, darkMode } = useUser();
   const socketRef = useRef<WebSocket | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  const router=useRouter();
 
   const [messages, setMessages] = useState<
     { sender: "me" | "other"; text: string }[]
@@ -17,7 +20,6 @@ export default function Chat() {
 
   const currentChat = contacts.find((c) => c.id === id);
 
-  // Load old messages
   useEffect(() => {
     if (!id || !user?.id) return;
 
@@ -126,7 +128,7 @@ export default function Chat() {
       }`}
     >
       {/* Header */}
-      <div className={`p-4 border-b ${borderMain} flex items-center gap-4`}>
+      <div className={`p-4 border-b ${borderMain} flex items-center gap-4 relative`}>
         <h1 className="w-12 h-12 rounded-full flex justify-center items-center bg-blue-600 text-white">
           {currentChat?.name?.charAt(0)}
         </h1>
@@ -137,6 +139,11 @@ export default function Chat() {
           <p className="text-sm text-green-500">
             {currentChat?.online ? "online" : "offline"}
           </p>
+        </div>
+        <div className="flex md:hidden absolute right-5 top-5 w-fit" onClick={()=>{
+          router.push('/dashboard')
+        }}>
+          <FaX className={`${textMain}`}/>
         </div>
       </div>
 

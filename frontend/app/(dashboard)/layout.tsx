@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import Sidebar from "../Components/Sidebar";
 import {  FaCog, FaSignOutAlt, FaAlignJustify } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import Loading from "../Components/LoadingForUi";
 import { FaX } from "react-icons/fa6";
 import axios from "axios";
@@ -16,7 +15,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { status, data } = useSession();
   const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState<UserData >();
-  const router = useRouter();
   const [contacts, setContacts] = useState<Contact[] | []>();
   const [darkMode, setDarkMode] = useState<boolean>(true);
 
@@ -51,9 +49,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     await signOut({ callbackUrl: "/" });
   };
 
-  const handleContactSelect = (contact: Contact) => {
-    router.push(`/dashboard/${contact.id}`);
-  };
+ 
 
 
   if (status === "loading" || !user || !contacts) {
@@ -88,8 +84,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
     }`}
   >
-    <div className="w-fit flex justify-center items-center"><Theme darkMode={darkMode} setDarkMode={setDarkMode}/><span>Theme</span></div>
-
+      <Theme darkMode={darkMode} setDarkMode={setDarkMode}/>
     <button
       onClick={() => console.log("Settings clicked")}
       title="Settings"
@@ -135,10 +130,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className={`flex flex-1 ${darkMode ? "bg-gray-800" : "bg-white"} rounded-xl`}>
-          <Sidebar
-            darkMode={darkMode}
-            onContactSelect={handleContactSelect}
-          />
             {children}
         </div>
         <div className={`hidden sm:flex w-6 flex-col justify-end items-center space-y-6 ${darkMode ? "bg-gray-900" : "bg-gray-100"}`}>
