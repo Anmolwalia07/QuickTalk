@@ -33,6 +33,7 @@ model Messages {
   receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
   message    String
   createdAt  DateTime  @default(now())
+  seen       Boolean   @default(false)
 }
 
 model Friend {

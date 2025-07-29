@@ -1,4 +1,4 @@
-import express,{Request} from "express";
+import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import { WebSocketServer, WebSocket } from "ws";
@@ -6,6 +6,8 @@ import cors from "cors"
 import userRoutes from "./routes/userRoutes"
 import cookieparser from "cookie-parser"
 import { prisma } from "./db/db";
+import messageRoutes from "./routes/messageRoutes"
+import { sendMessage } from "./controller/messageController";
 
 
 const app = express();
@@ -19,7 +21,8 @@ app.use(cors({
 
 app.use(cookieparser());
 
-app.use("/api/user",userRoutes)
+app.use("/api/user",userRoutes);
+app.use('/api/message',messageRoutes)
 
 app.get("/", (req, res) => {
   res.send("WebSocket server is running.");
@@ -32,37 +35,6 @@ const server = app.listen(8080, () => {
 });
 
 const wss = new WebSocketServer({ server });
-
-export async function sendMessage({
-  senderId,
-  receiverId,
-  message,
-}: {
-  senderId: string;
-  receiverId: string;
-  message: string;
-}) {
-  try {
-    const savedMessage = await prisma.messages.create({
-      data: {
-        senderId,
-        receiverId,
-        message,
-      },
-      include: {
-        sender: { select: { id: true, name: true } },
-        receiver: { select: { id: true, name: true } },
-      },
-    });
-
-    return { success: true, data: savedMessage };
-  } catch (error) {
-    console.error("Error saving message:", error);
-    return { success: false, error: "Failed to save message." };
-  }
-}
-
-
 const userSocketMap = new Map<string, WebSocket>(); 
 
 wss.on("connection", (ws: WebSocket) => {

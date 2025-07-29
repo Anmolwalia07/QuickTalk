@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { IoSend } from "react-icons/io5";
 import { useUser } from "../(dashboard)/context";
 import { FaX } from "react-icons/fa6";
+import axios from "axios";
 
 export default function Chat() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ export default function Chat() {
 
   const router=useRouter();
 
+  if(!id) return;
 
   const [messages, setMessages] = useState<
     { sender: "me" | "other"; text: string }[]
@@ -44,6 +46,8 @@ export default function Chat() {
   setMessages(chatMessages);
 
   }, [id, user]);
+
+ 
 
   useEffect(() => {
     if (!id || !user?.id) return;
@@ -119,6 +123,18 @@ export default function Chat() {
   const msgOther = darkMode
     ? "bg-gray-700 text-white"
     : "bg-gray-200 text-gray-800";
+
+    
+    useEffect(()=>{
+         axios.post(`${process.env.NEXT_PUBLIC_Url}/api/message/markSeen`, {
+         senderId:id,
+         receiverId:user.id,
+        }).then((res)=>{
+          console.log("hello")
+        }).catch(err=>{
+          console.log(err)
+        })
+     },[sendMessage])
 
   return (
     <main

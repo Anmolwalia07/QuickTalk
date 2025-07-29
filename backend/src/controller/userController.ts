@@ -345,6 +345,7 @@ export const getContacts = async (req: Request, res: Response) => {
                     createdAt: true,
                     senderId: true,
                     receiverId: true,
+                    seen:true
                   },
                 },
                 receivedMessages: {
@@ -354,6 +355,7 @@ export const getContacts = async (req: Request, res: Response) => {
                     createdAt: true,
                     senderId: true,
                     receiverId: true,
+                    seen:true
                   },
                 },
               },
@@ -378,6 +380,8 @@ export const getContacts = async (req: Request, res: Response) => {
                     createdAt: true,
                     senderId: true,
                     receiverId: true,
+                     seen:true
+
                   },
                 },
                 receivedMessages: {
@@ -387,6 +391,7 @@ export const getContacts = async (req: Request, res: Response) => {
                     createdAt: true,
                     senderId: true,
                     receiverId: true,
+                    seen:true
                   },
                 },
               },
@@ -421,7 +426,10 @@ export const getContacts = async (req: Request, res: Response) => {
       );
 
       const lastMessage = sortedMessages[0];
-
+      
+      const unreadCount = friend.sentMessages.filter(
+        (m) => m.receiverId === user.id && !m.seen
+      ).length;
       return {
         id: friend.id,
         name: friend.name,
@@ -434,7 +442,7 @@ export const getContacts = async (req: Request, res: Response) => {
               weekday: "short",
             })
           : "",
-        unread: 0,
+        unread: unreadCount,
         online: friend.isOnline,
       };
     });

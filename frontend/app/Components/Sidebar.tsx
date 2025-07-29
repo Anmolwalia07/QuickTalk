@@ -20,7 +20,7 @@ const Sidebar = () => {
  
 
   const userId=useUser().user.id
-  
+
    useEffect(() => {
         const fetchContacts = () => {
           axios
@@ -34,15 +34,29 @@ const Sidebar = () => {
               console.error("Failed to fetch contacts:", err);
             });
         };
-  
-        fetchContacts(); // Initial fetch
+        
+        fetchContacts();
   
         const interval = setInterval(() => {
           fetchContacts();
-        }, 5000); // Fetch every 5 seconds
+        }, 1000); 
   
-        return () => clearInterval(interval); // Cleanup on unmount
+        return () => clearInterval(interval); 
       }, []);
+
+    const {setUser,user}=useUser();
+
+    
+     useEffect(()=>{
+      axios
+        .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${user.email}`)
+        .then((res) => {
+          if (res.status === 200) {
+            setUser({...res.data.user});
+          }
+        })
+        .catch(console.error);
+     },[])
   
    const contacts: Contact[] = useUser().contacts
 
