@@ -1,24 +1,26 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { IoSend } from "react-icons/io5";
 import { useUser } from "../(dashboard)/context";
-import { FaX } from "react-icons/fa6";
+import { FaX, FaCheckDouble } from "react-icons/fa6";
 import axios from "axios";
+
+type ChatMessage = {
+  sender: "me" | "other";
+  text: string;
+  seen?: boolean;
+};
 
 export default function Chat() {
   const { id } = useParams();
   const { user, contacts, darkMode } = useUser();
   const socketRef = useRef<WebSocket | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const router = useRouter();
 
-  const router=useRouter();
-
-  if(!id) return;
-
-  const [messages, setMessages] = useState<
-    { sender: "me" | "other"; text: string }[]
-  >([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
 
   const currentChat = contacts.find((c) => c.id === id);
@@ -28,31 +30,28 @@ export default function Chat() {
 
     const allMessages = [...user.sentMessages, ...user.receivedMessages];
 
-    const chatMessages: { sender: "me" | "other"; text: string }[] = allMessages
-  .filter(
-    (msg) =>
-      (msg.senderId === user.id && msg.receiverId === id) ||
-      (msg.senderId === id && msg.receiverId === user.id)
-  )
-  .sort(
-    (a, b) =>
-      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  )
-  .map((msg) => ({
-    sender: msg.senderId === user.id ? "me" : "other",
-    text: msg.message,
-  }));
+    const chatMessages: ChatMessage[] = allMessages
+      .filter(
+        (msg) =>
+          (msg.senderId === user.id && msg.receiverId === id) ||
+          (msg.senderId === id && msg.receiverId === user.id)
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+      .map((msg) => ({
+        sender: msg.senderId === user.id ? "me" : "other",
+        text: msg.message,
+      }));
 
-  setMessages(chatMessages);
-
-  }, [id, user]);
-
- 
+    setMessages(chatMessages);
+  }, [id, user?.id, user?.sentMessages, user?.receivedMessages]);
 
   useEffect(() => {
     if (!id || !user?.id) return;
 
-    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_Ws}`);
+    const socket = new WebSocket(process.env.NEXT_PUBLIC_Ws!);
     socketRef.current = socket;
 
     socket.onopen = () => {
@@ -66,9 +65,9 @@ export default function Chat() {
         (data.senderId === id && data.receiverId === user.id) ||
         (data.senderId === user.id && data.receiverId === id)
       ) {
-       const newMsg: { sender: "me" | "other"; text: string } = {
-        sender: data.senderId === user.id ? "me" : "other",
-        text: data.message,
+        const newMsg: ChatMessage = {
+          sender: data.senderId === user.id ? "me" : "other",
+          text: data.message,
         };
         setMessages((prev) => [...prev, newMsg]);
       }
@@ -85,14 +84,28 @@ export default function Chat() {
     return () => {
       socket.close();
     };
-  }, [id, user]);
+  }, [id, user?.id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (!id || !user?.id) return;
+
+    axios
+      .post(`${process.env.NEXT_PUBLIC_Url}/api/message/markSeen`, {
+        senderId: id,
+        receiverId: user.id,
+      })
+      .catch((err) => {
+        console.log("Mark seen error", err);
+      });
+  }, [id, user?.id, messages]);
+
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (
       !input.trim() ||
       !socketRef.current ||
@@ -124,24 +137,14 @@ export default function Chat() {
     ? "bg-gray-700 text-white"
     : "bg-gray-200 text-gray-800";
 
-    
-    useEffect(()=>{
-         axios.post(`${process.env.NEXT_PUBLIC_Url}/api/message/markSeen`, {
-         senderId:id,
-         receiverId:user.id,
-        }).then((res)=>{
-          console.log("hello")
-        }).catch(err=>{
-          console.log(err)
-        })
-     },[sendMessage])
+  if (!id) return null;
 
   return (
     <main
       className={`flex flex-col h-full w-full lg:w-3/4 ${bgMain} ${
         darkMode
-          ? "border-gray-900 border-l-1"
-          : "border-l-1 border-[#64646480]"
+          ? "border-l border-gray-900"
+          : "border-l border-[#64646480]"
       }`}
     >
       {/* Header */}
@@ -157,10 +160,11 @@ export default function Chat() {
             {currentChat?.online ? "online" : "offline"}
           </p>
         </div>
-        <div className="flex md:hidden absolute right-5 top-5 w-fit" onClick={()=>{
-          router.push('/dashboard')
-        }}>
-          <FaX className={`${textMain}`}/>
+        <div
+          className="flex lg:hidden absolute right-5 top-5"
+          onClick={() => router.push("/dashboard")}
+        >
+          <FaX className={`${textMain}`} />
         </div>
       </div>
 
@@ -178,9 +182,12 @@ export default function Chat() {
                 msg.sender === "me"
                   ? "bg-blue-500 text-white"
                   : `${msgOther}`
-              } p-3 rounded-lg max-w-sm`}
+              } p-3 rounded-lg max-w-sm sm:max-w-xs md:max-w-sm flex items-end gap-2`}
             >
               <p className="text-sm">{msg.text}</p>
+              {msg.sender === "me" && msg.seen && (
+                <FaCheckDouble className="text-xs text-white opacity-70" />
+              )}
             </div>
           </div>
         ))}

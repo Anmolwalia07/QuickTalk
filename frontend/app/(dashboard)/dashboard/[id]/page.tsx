@@ -12,7 +12,7 @@ export default async function Page() {
 
   return (
     <div className="w-full flex">
-    <div className="w-1/4 md:flex hidden "><Sidebar/></div>
+    <div className="w-1/4 lg:flex hidden "><Sidebar/></div>
     <Chat/>
     </div>
   )
