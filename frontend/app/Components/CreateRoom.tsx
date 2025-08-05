@@ -139,6 +139,7 @@ export default function CreateRoom() {
               type="text"
               placeholder="Enter Room Code"
               value={joinCode}
+              onKeyDown={(e) => e.key === "Enter" && handleJoin()}
               onChange={(e) => setJoinCode(e.target.value)}
               className={`flex-1 px-4 py-2 rounded-lg border ${borderMain} focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
