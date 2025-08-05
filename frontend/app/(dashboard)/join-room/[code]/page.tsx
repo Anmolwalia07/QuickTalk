@@ -1,5 +1,6 @@
 import Room from "@/app/Components/Room";
 
-export default function Page({ params }: { params: { code: string } }) {
-  return <Room roomId={params.code} />;
+export default async function Page({ params }: { params: Promise<{ code: string }> }) {
+  const { code } = await params; 
+  return <Room roomId={code} />;
 }
