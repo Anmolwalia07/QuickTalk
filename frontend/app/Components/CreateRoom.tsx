@@ -3,13 +3,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../(dashboard)/context";
+import axios from "axios";
+import Loading from "./LoadingForUi";
 
 export default function CreateRoom() {
   const [roomCode, setRoomCode] = useState("");
   const [joinCode, setJoinCode] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [cooldown, setCooldown] = useState<number>(0); 
   const router = useRouter();
-  const { darkMode } = useUser();
+  const { darkMode ,user} = useUser();
 
   const bgMain = darkMode ? "bg-gray-900" : "bg-white";
   const textMain = darkMode ? "text-white" : "text-gray-900";
@@ -19,8 +23,8 @@ export default function CreateRoom() {
     const lastCreated = localStorage.getItem("lastRoomCreated");
     if (lastCreated) {
       const elapsed = Math.floor((Date.now() - parseInt(lastCreated)) / 1000);
-      if (elapsed < 1200) {
-        setCooldown(1200 - elapsed);
+      if (elapsed < 600) {
+        setCooldown(600 - elapsed);
       }
     }
   }, []);
@@ -34,14 +38,23 @@ export default function CreateRoom() {
     }
   }, [cooldown]);
 
-  const generateRoom = () => {
+  const generateRoom = async() => {
     if (cooldown > 0) return;
 
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     setRoomCode(code);
+    setLoading(true)
+    const response=await axios.post(`${process.env.NEXT_PUBLIC_Url}/api/room/create`,{
+      roomId:code,
+      userId:user.id
+    })
+    if(response.status===200){
+      setLoading(false)
+       localStorage.setItem("lastRoomCreated", Date.now().toString());
+      setCooldown(600);
 
-    localStorage.setItem("lastRoomCreated", Date.now().toString());
-    setCooldown(600);
+    }
+    setLoading(false)
   };
 
   const handleJoin = () => {
@@ -51,6 +64,8 @@ export default function CreateRoom() {
   };
 
   return (
+    <>
+    {loading && <Loading/>}
     <div className={`flex flex-col items-center justify-center w-full px-4`}>
       <div className={`${bgMain} rounded-2xl shadow p-8 w-full max-w-md`}>
         <button
@@ -139,5 +154,6 @@ export default function CreateRoom() {
         </div>
       </div>
     </div>
+    </>
   );
 }

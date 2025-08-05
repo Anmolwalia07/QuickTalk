@@ -6,7 +6,7 @@ import { useUser } from "../(dashboard)/context";
 
 export default function Room({ roomId }: { roomId: string }) {
   const [messages, setMessages] = useState([
-    { sender: "other", text: "Welcome to the room!" },
+    { sender: "other", text: "Welcome To QuickTalk Room..." },
   ]);
   const [newMessage, setNewMessage] = useState("");
   const { darkMode, user } = useUser();
@@ -86,7 +86,7 @@ export default function Room({ roomId }: { roomId: string }) {
         JSON.stringify({ type: "leave-room", roomId, username: user?.name })
       );
     }
-    router.push("/dashbord"); 
+    router.push("/dashboard"); 
   };
 
   return (
@@ -115,7 +115,7 @@ export default function Room({ roomId }: { roomId: string }) {
               msg.sender === "me" ? "justify-end" : "justify-start"
             }`}
           >
-            <div
+            {msg.text && <div
               className={`px-4 py-2 rounded-2xl max-w-[80%] break-words ${
                 msg.sender === "me"
                   ? "bg-blue-600 text-white"
@@ -125,7 +125,7 @@ export default function Room({ roomId }: { roomId: string }) {
               }`}
             >
               {msg.text}
-            </div>
+            </div>}
           </div>
         ))}
         <div ref={messagesEndRef} />

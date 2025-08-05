@@ -54,3 +54,11 @@ enum RequestStatus {
   Rejected
   Blocked
 }
+
+
+model Room{
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  roomId     String        @unique
+  createdBy  String        @db.ObjectId
+  createdAt  DateTime      @default(now())
+}

@@ -4,6 +4,7 @@ dotenv.config();
 import { WebSocketServer, WebSocket } from "ws";
 import cors from "cors"
 import userRoutes from "./routes/userRoutes"
+import roomRoutes from "./routes/roomRoutes"
 import cookieparser from "cookie-parser"
 import { prisma } from "./db/db";
 import messageRoutes from "./routes/messageRoutes"
@@ -23,6 +24,7 @@ app.use(cookieparser());
 
 app.use("/api/user",userRoutes);
 app.use('/api/message',messageRoutes)
+app.use('/api/room',roomRoutes);
 
 app.get("/", (req, res) => {
   res.send("WebSocket server is running.");
@@ -93,7 +95,6 @@ wss.on("connection", (ws: WebSocket) => {
         }
       }
 
-      // Send message to room
       if (parsed.type === "room-message") {
         const { roomId, sender, message } = parsed;
         const roomClients = rooms.get(roomId);
