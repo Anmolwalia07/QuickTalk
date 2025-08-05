@@ -34,8 +34,14 @@ const server = app.listen(8080, () => {
   console.log("HTTP + WS server running on http://localhost:8080");
 });
 
+interface Client extends WebSocket {
+  roomId?: string;
+  username?: string;
+}
+
 const wss = new WebSocketServer({ server });
 const userSocketMap = new Map<string, WebSocket>(); 
+const rooms: Map<string, Set<Client>> = new Map();
 
 wss.on("connection", (ws: WebSocket) => {
   let userId: string = "";
@@ -57,6 +63,19 @@ wss.on("connection", (ws: WebSocket) => {
         console.log(`✅ User ${userId} is now online`);
       }
 
+      if (parsed.type === "join-room") {
+        const { roomId, username } = parsed;
+        (ws as Client).roomId = roomId;
+        (ws as Client).username = username;
+
+        if (!rooms.has(roomId)) {
+          rooms.set(roomId, new Set());
+        }
+        rooms.get(roomId)!.add(ws as Client);
+
+        console.log(`📌 ${username} joined room ${roomId}`);
+      }
+
       if (parsed.type === "message") {
         const { senderId, receiverId, message } = parsed;
 
@@ -64,9 +83,7 @@ wss.on("connection", (ws: WebSocket) => {
 
         if (saved.success) {
           const messageData = saved.data;
-
           const receiverSocket = userSocketMap.get(receiverId);
-          // const senderSocket = userSocketMap.get(senderId);
 
           if (receiverSocket && receiverSocket.readyState === WebSocket.OPEN) {
             receiverSocket.send(JSON.stringify(messageData));
@@ -75,6 +92,32 @@ wss.on("connection", (ws: WebSocket) => {
           console.error(saved.error);
         }
       }
+
+      // Send message to room
+      if (parsed.type === "room-message") {
+        const { roomId, sender, message } = parsed;
+        const roomClients = rooms.get(roomId);
+
+        if (roomClients) {
+          for (const client of roomClients) {
+            if (client.readyState === WebSocket.OPEN && client.username!=sender) {
+              client.send(JSON.stringify({
+                type: "room-message",
+                sender,
+                message,
+                roomId
+              }));
+            }
+          }
+        }
+      }
+
+      if(parsed.type==="leave-room"){
+        const {roomId,username}=parsed
+        const roomClients = rooms.get(roomId);
+        roomClients?.delete(username)
+      }
+
     } catch (err) {
       console.error("❌ Failed to handle WebSocket message:", err);
     }
@@ -90,6 +133,12 @@ wss.on("connection", (ws: WebSocket) => {
       });
 
       console.log(`⚠️ User ${userId} went offline`);
+    }
+
+    for (const [roomId, clients] of rooms.entries()) {
+      if (clients.delete(ws as Client) && clients.size === 0) {
+        rooms.delete(roomId);
+      }
     }
   });
 
