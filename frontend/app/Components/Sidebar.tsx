@@ -74,7 +74,7 @@ const Sidebar = () => {
         <div className="px-4 mt-3 flex flex-col gap-2">
           <div className="flex gap-3">
             <button
-              onClick={() => router.push("create-room")}
+              onClick={() => router.push("/create-room")}
               className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                 darkMode
                   ? "bg-blue-600 hover:bg-blue-700 text-white"
