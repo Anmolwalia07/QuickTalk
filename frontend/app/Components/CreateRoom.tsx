@@ -49,6 +49,7 @@ export default function CreateRoom() {
       userId:user.id
     })
     if(response.status===200){
+      setJoinCode(code)
       setLoading(false)
        localStorage.setItem("lastRoomCreated", Date.now().toString());
       setCooldown(600);
