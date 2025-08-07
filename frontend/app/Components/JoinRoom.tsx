@@ -25,9 +25,8 @@ export default function JoinRoom() {
       className={`flex flex-col items-center justify-center min-h-screen w-full  px-4`}
     >
       <div className={`${bgMain} rounded-2xl shadow-lg p-8 w-full max-w-md`}>
-        {/* Back Button */}
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/dashboard')}
           className="text-sm text-blue-400 hover:underline mb-4"
         >
           ← Back

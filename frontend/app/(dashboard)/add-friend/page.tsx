@@ -1,5 +1,7 @@
+import AddFriend from "@/app/Components/AddFriend";
+
 export default function page() {
   return (
-    <div>page</div>
+    <AddFriend/>
   )
 }

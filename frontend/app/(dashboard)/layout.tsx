@@ -9,8 +9,6 @@ import axios from "axios";
 import {Contact, UserData, UserProvider} from "./context";
 import Theme from "../Components/Theme";
 
-
-
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { status, data } = useSession();
   const [showMenu, setShowMenu] = useState(false);
@@ -24,7 +22,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       setDarkMode(saved === "true");
     }
 
-    // isko function banke thik krna h online hone mai dikht aari
     if (data?.user?.email) {
       axios
         .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${data.user.email}`)
@@ -41,6 +38,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         .catch(console.error);
     }
   }, [data]);
+
+
 
 
 
@@ -61,6 +60,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   if (status === "unauthenticated") {
     redirect("/login");
   }
+
+
   return (
     <UserProvider  user={user} contact={contacts} dark={darkMode}>
       <div className={`h-screen flex flex-col ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}`}>

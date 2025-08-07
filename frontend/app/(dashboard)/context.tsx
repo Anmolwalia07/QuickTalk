@@ -28,6 +28,12 @@ export interface UserData {
   isOnline: boolean;
   sentMessages: Message[];
   receivedMessages: Message[];
+  receivedRequests:Requests[];
+}
+
+export interface Requests{
+  id:string;
+  user:UserData
 }
 
 export interface UserContextType {
@@ -37,15 +43,19 @@ export interface UserContextType {
   setContacts: (contacts: Contact[]) => void;
   darkMode:boolean;
   setDarkMode:(darkMode:boolean)=>void;
+  receivedFriendRequests:Requests[],
+  setReceivedFriendRequests:(receivedFriendRequests:Requests[])=>void
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
+
 
 export const UserProvider = ({ user, children ,contact,dark}: { user: UserData; children: React.ReactNode ;contact:Contact[],dark:boolean}) => {
   const [userState, setUserState] = useState<UserData>(user);
   const [contacts, setContacts] = useState<Contact[]>(contact);
   const [darkMode, setDarkMode] = useState<boolean>(dark);
-  
+  const [receivedFriendRequests,setReceivedFriendRequests]=useState<Requests[] | []>([])
+
   return (
     <UserContext.Provider
       value={{
@@ -55,6 +65,8 @@ export const UserProvider = ({ user, children ,contact,dark}: { user: UserData; 
         setContacts,
         darkMode,
         setDarkMode,
+        receivedFriendRequests,
+        setReceivedFriendRequests
       }}
     >
       {children}

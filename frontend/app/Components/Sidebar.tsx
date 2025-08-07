@@ -5,9 +5,12 @@ import { FaSearch, FaComments } from "react-icons/fa";
 import { Contact, useUser } from "../(dashboard)/context";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { IoMdNotifications } from "react-icons/io";
+import { IoMdNotificationsOutline } from "react-icons/io";
+
 
 const Sidebar = () => {
-  const { darkMode, setContacts, user, setUser, contacts } = useUser();
+  const { darkMode, setContacts, user, setUser, contacts ,setReceivedFriendRequests,receivedFriendRequests} = useUser();
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
@@ -32,7 +35,7 @@ const Sidebar = () => {
     };
 
     fetchContacts();
-    const interval = setInterval(fetchContacts, 1000);
+    const interval = setInterval(fetchContacts, 100000);
 
     return () => clearInterval(interval);
   }, [user?.id, setContacts]);
@@ -49,6 +52,20 @@ const Sidebar = () => {
       })
       .catch(console.error);
   }, [user?.email, setUser]);
+
+
+   useEffect(() => {
+    if (!user?.email) return;
+    axios
+      .get(`${process.env.NEXT_PUBLIC_Url}/api/user/getFriendRequestRecievced/${user.id}`)
+      .then((res) => {
+        if (res.status === 201) {
+          console.log(res.data)
+          setReceivedFriendRequests([...res.data.receivedFriendReq]);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -94,6 +111,7 @@ const Sidebar = () => {
               Join Room
             </button>
           </div>
+          <div className="flex gap-3 items-center">
           <button
             onClick={() => router.push("/add-friend")}
             className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -104,6 +122,18 @@ const Sidebar = () => {
           >
             Add Friend
           </button>
+          <button
+          onClick={()=>{
+            router.push("/friend-request")
+          }}
+              className=" h-fit w-fit rounded-full relative hover:cursor-pointer"
+              title="friend request"
+            >
+              
+              {darkMode ? <IoMdNotifications className="text-2xl"/>:<IoMdNotificationsOutline className="text-2xl"/>}
+              {receivedFriendRequests.length>0 && <span className="absolute top-[-15%] left-4 p-1 bg-red-500 rounded-full"></span>}
+            </button>
+          </div>
         </div>
       </div>
 

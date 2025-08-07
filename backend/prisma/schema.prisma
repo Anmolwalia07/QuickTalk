@@ -22,7 +22,7 @@ model User {
   receivedRequests  Friend[]   @relation("friendOf")
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @default(now())
-   isOnline          Boolean    @default(false) 
+  isOnline          Boolean    @default(false) 
 }
 
 model Messages {

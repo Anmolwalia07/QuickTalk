@@ -116,7 +116,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
         sentMessages: true,
         receivedMessages: true,
         sentRequests: {
-          where: { request: "Accepted" },
+          where:{request:'Accepted'},
           select: {
             friend: {
               select: {
@@ -149,7 +149,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
           },
         },
         receivedRequests: {
-          where: { request: "Accepted" },
+          where:{request:'Accepted'},
           select: {
             user: {
               select: {
@@ -229,7 +229,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
 
     const { sentRequests, receivedRequests, ...userData } = user;
 
-    return res.status(200).json({ user: userData, contacts });
+    return res.status(200).json({ user: user, contacts });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -240,9 +240,9 @@ export const getUserDetails = async (req: Request, res: Response) => {
 
 
 export const addFriend = async (req: Request, res: Response) => {
-  const { userId, friendId, request } = req.body;
+  const { userId, friendId } = req.body;
 
-  if (!userId || !friendId || !request) {
+  if (!userId || !friendId) {
     return res.status(400).json({ message: "Invalid input details" });
   }
 
@@ -262,7 +262,7 @@ export const addFriend = async (req: Request, res: Response) => {
       data: {
         userId,
         friendId,
-        request,
+        request:"Pending",
       },
       include: {
         user: true,
@@ -297,6 +297,42 @@ export const acceptRequest = async (req: Request, res: Response) => {
     const updatedRequest = await prisma.friend.update({
       where: { id: requestId },
       data: { request: "Accepted" },
+      include: {
+        user: true,
+        friend: true,
+      },
+    });
+
+    return res.status(200).json({
+      message: "Friend request accepted successfully",
+      data: updatedRequest,
+    });
+
+  } catch (err) {
+    console.error("Error accepting request:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const declineRequest = async (req: Request, res: Response) => {
+  const { requestId } = req.body;
+
+  if (!requestId) {
+    return res.status(400).json({ message: "Request ID is required" });
+  }
+
+  try {
+    const friendRequest = await prisma.friend.findUnique({
+      where: { id: requestId },
+    });
+
+    if (!friendRequest) {
+      return res.status(404).json({ message: "Friend request not found" });
+    }
+
+    const updatedRequest = await prisma.friend.update({
+      where: { id: requestId },
+      data: { request: "Rejected" },
       include: {
         user: true,
         friend: true,
@@ -401,6 +437,7 @@ export const getContacts = async (req: Request, res: Response) => {
       },
     });
 
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -419,6 +456,7 @@ export const getContacts = async (req: Request, res: Response) => {
           (m) => m.receiverId === user.id || m.senderId === user.id
         ),
       ];
+
 
       const sortedMessages = allMessages.sort(
         (a, b) =>
@@ -453,3 +491,33 @@ export const getContacts = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+export const getFriendsRequest=async (req: Request, res: Response)=>{
+  const id=req.params.id;
+
+  if(!id) return res.status(401).json({message:"User id required"});
+
+  try{
+    const receivedFriendReq=await prisma.friend.findMany({
+    where:{
+      friendId:id,
+      request:"Pending"
+    },
+    select:{
+      user:{
+        select:{
+          name:true
+        }
+      },
+      id:true
+    }
+  })
+
+  return res.status(201).json({receivedFriendReq})
+  }
+  catch(err){
+   return  res.status(401).json({message:"Internal server error"})
+  }
+
+}
