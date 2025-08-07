@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { FaLock, FaMobileAlt, FaPaperclip, FaRocket } from "react-icons/fa";
+
 export default function Features() {
   return (
       <section className="py-20 px-4 bg-white" id="feature">

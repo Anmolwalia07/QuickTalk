@@ -47,6 +47,8 @@ export default function CreateRoom() {
     const response=await axios.post(`${process.env.NEXT_PUBLIC_Url}/api/room/create`,{
       roomId:code,
       userId:user.id
+    },{
+      withCredentials: true
     })
     if(response.status===200){
       setJoinCode(code)

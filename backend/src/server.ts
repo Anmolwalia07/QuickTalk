@@ -9,6 +9,7 @@ import cookieparser from "cookie-parser"
 import { prisma } from "./db/db";
 import messageRoutes from "./routes/messageRoutes"
 import { sendMessage } from "./controller/messageController";
+import { logSessionToken } from "./middleware/auth";
 
 
 const app = express();
@@ -16,15 +17,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors({
-  origin:'*',
+  origin:'http://localhost:3000',
  credentials:true, 
 }))
 
 app.use(cookieparser());
-
 app.use("/api/user",userRoutes);
-app.use('/api/message',messageRoutes)
-app.use('/api/room',roomRoutes);
+app.use('/api/message',logSessionToken,messageRoutes)
+app.use('/api/room',logSessionToken,roomRoutes);
 
 app.get("/", (req, res) => {
   res.send("WebSocket server is running.");

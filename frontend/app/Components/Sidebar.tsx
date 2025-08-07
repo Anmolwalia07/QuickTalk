@@ -23,7 +23,7 @@ const Sidebar = () => {
 
     const fetchContacts = () => {
       axios
-        .get(`${process.env.NEXT_PUBLIC_Url}/api/user/getContacts/${user.id}`)
+        .get(`${process.env.NEXT_PUBLIC_Url}/api/user/getContacts/${user.id}`,{withCredentials: true})
         .then((res) => {
           if (res.status === 200) {
             setContacts(res.data.contacts);
@@ -44,7 +44,9 @@ const Sidebar = () => {
     if (!user?.email) return;
 
     axios
-      .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${user.email}`)
+      .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${user.email}`,{
+        withCredentials: true
+      })
       .then((res) => {
         if (res.status === 200) {
           setUser({ ...res.data.user });
@@ -57,10 +59,11 @@ const Sidebar = () => {
    useEffect(() => {
     if (!user?.email) return;
     axios
-      .get(`${process.env.NEXT_PUBLIC_Url}/api/user/getFriendRequestRecievced/${user.id}`)
+      .get(`${process.env.NEXT_PUBLIC_Url}/api/user/getFriendRequestRecievced/${user.id}`,{
+        withCredentials: true
+      })
       .then((res) => {
         if (res.status === 201) {
-          console.log(res.data)
           setReceivedFriendRequests([...res.data.receivedFriendReq]);
         }
       })

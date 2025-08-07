@@ -1,5 +1,6 @@
 import express from "express";
-import { acceptRequest, addFriend, declineRequest, getContacts, getDetails, getFriendsRequest, getUserDetails, handleLogin, handleRegister } from "../controller/userController";
+import { acceptRequest, addFriend, declineRequest, getContacts, getDetails, getFriendsRequest, getSentRequest, getUserDetails, getUsersname, handleLogin, handleRegister } from "../controller/userController";
+import { logSessionToken } from "../middleware/auth";
 
 const router=express.Router();
 
@@ -7,18 +8,23 @@ router.post('/register',handleRegister)
 
 router.post('/login',handleLogin)
 
-router.get('/:email',getDetails)
+router.get('/:email',logSessionToken,getDetails)
 
-router.get('/details/:email',getUserDetails)
+router.get('/alluser/name',logSessionToken,getUsersname)
 
-router.post('/addFriend',addFriend)
+router.get('/details/:email',logSessionToken,getUserDetails)
 
-router.post('/acceptRequest',acceptRequest)
+router.post('/addFriend',logSessionToken,addFriend)
 
-router.post('/declineRequest',declineRequest)
+router.post('/acceptRequest',logSessionToken,acceptRequest)
 
-router.get('/getContacts/:id',getContacts)
+router.post('/declineRequest',logSessionToken,declineRequest)
 
-router.get('/getFriendRequestRecievced/:id',getFriendsRequest)
+router.get('/getContacts/:id',logSessionToken,getContacts)
+
+router.get('/getFriendRequestRecievced/:id',logSessionToken,getFriendsRequest)
+
+router.get('/getSentRequest/:id',logSessionToken,getSentRequest)
+
 
 export default router

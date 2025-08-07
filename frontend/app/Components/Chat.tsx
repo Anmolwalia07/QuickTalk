@@ -97,6 +97,8 @@ export default function Chat() {
       .post(`${process.env.NEXT_PUBLIC_Url}/api/message/markSeen`, {
         senderId: id,
         receiverId: user.id,
+      },{
+        withCredentials: true
       })
       .catch((err) => {
         console.log("Mark seen error", err);

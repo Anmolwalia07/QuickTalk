@@ -21,7 +21,9 @@ export default function FriendRequest() {
 
     axios
       .get(
-        `${process.env.NEXT_PUBLIC_Url}/api/user/getFriendRequestRecievced/${user.id}`
+        `${process.env.NEXT_PUBLIC_Url}/api/user/getFriendRequestRecievced/${user.id}`,{
+          withCredentials: true
+        }
       )
       .then((res) => {
         if (res.status === 201) {
@@ -35,7 +37,9 @@ export default function FriendRequest() {
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_Url}/api/user/acceptRequest`,
-        { requestId }
+        { requestId },{
+          withCredentials: true
+        }
       );
       if (res.status === 200) {
         const newFriends: Requests[] = receivedFriendRequests.filter(
@@ -52,7 +56,7 @@ export default function FriendRequest() {
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_Url}/api/user/declineRequest`,
-        { requestId }
+        { requestId },{withCredentials: true}
       );
       if (res.status === 200) {
         const newFriends: Requests[] = receivedFriendRequests.filter(

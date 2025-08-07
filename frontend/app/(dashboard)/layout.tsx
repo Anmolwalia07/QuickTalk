@@ -24,7 +24,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     if (data?.user?.email) {
       axios
-        .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${data.user.email}`)
+        .get(`${process.env.NEXT_PUBLIC_Url}/api/user/details/${data.user.email}`,{
+          withCredentials: true
+        })
         .then((res) => {
           if (res.status === 200) {
             setUser({...res.data.user});

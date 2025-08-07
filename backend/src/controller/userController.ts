@@ -1,5 +1,5 @@
 import { Request,Response } from "express"
-import { addFriendInput, loginInputValidation, registerInputValidation } from "../common/validation";
+import { loginInputValidation, registerInputValidation } from "../common/validation";
 import {prisma} from "../db/db"
 import bcrypt from "bcrypt"
 
@@ -10,7 +10,6 @@ export const handleRegister=async(req:Request,res:Response)=>{
         return res.status(401).json({message:"Invaild Input details"})
     }
     const {name,email,password}=result.data;
-    
 
     const hashPassword=await bcrypt.hash(password,10);
     try{
@@ -515,6 +514,52 @@ export const getFriendsRequest=async (req: Request, res: Response)=>{
   })
 
   return res.status(201).json({receivedFriendReq})
+  }
+  catch(err){
+   return  res.status(401).json({message:"Internal server error"})
+  }
+
+}
+
+
+export const getUsersname=async(req:Request,res:Response)=>{
+
+  try{
+    const allusers=await prisma.user.findMany({
+      select:{
+        id:true,
+        name:true
+      }
+    })
+
+    return res.status(201).json({allusers})
+  }catch(err){
+   return  res.status(401).json({message:"Internal server error"})
+  }
+}
+
+export const getSentRequest=async (req: Request, res: Response)=>{
+  const id=req.params.id;
+
+  if(!id) return res.status(401).json({message:"User id required"});
+
+  try{
+    const sentFriendReq=await prisma.friend.findMany({
+    where:{
+      userId:id,
+      request:"Pending"
+    },
+    select:{
+      friend:{
+        select:{
+          name:true
+        }
+      },
+      id:true
+    }
+  })
+
+  return res.status(201).json({sentFriendReq})
   }
   catch(err){
    return  res.status(401).json({message:"Internal server error"})
