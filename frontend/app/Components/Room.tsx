@@ -111,7 +111,7 @@ export default function Room({ roomId }: { roomId: string }) {
             key={i}
             className={`flex flex-col ${msg.sender === "me" ? "items-end" : "items-start"}`}
           >
-            <span className="text-xs text-gray-300 mb-1">
+            <span className={`text-xs  ${darkMode ? "text-gray-300" : "text-gray-700"} mb-1`}>
               {msg.sender === "me" ? "You" : msg.sender}
             </span>
 
