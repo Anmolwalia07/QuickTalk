@@ -35,7 +35,7 @@ const Sidebar = () => {
     };
 
     fetchContacts();
-    const interval = setInterval(fetchContacts, 100000);
+    const interval = setInterval(fetchContacts, 1000);
 
     return () => clearInterval(interval);
   }, [user?.id, setContacts]);
