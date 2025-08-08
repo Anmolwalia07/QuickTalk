@@ -62,13 +62,13 @@ export const authOptions: AuthOptions = {
   cookies: {
     sessionToken: {
       name:
-        process.env.NODE_ENV === "production"
+        process.env.NEXT_PUBLIC_NODE_ENV === "production"
           ? "__Secure-next-auth.session-token"
           : "next-auth.session-token",
       options: {
         httpOnly: true,
-        sameSite: "none", // required if backend and frontend are on different domains
-        secure: process.env.NODE_ENV === "production", // only secure in prod
+        sameSite: "none",
+        secure: process.env.NEXT_PUBLIC_NODE_ENV === "production", // only secure in prod
         path: "/",
       },
     },
@@ -149,5 +149,5 @@ export const authOptions: AuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
 
-  debug: process.env.NODE_ENV === "development",
+  debug: process.env.NEXT_PUBLIC_NODE_ENV === "development",
 };
