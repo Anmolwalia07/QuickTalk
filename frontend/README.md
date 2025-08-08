@@ -1,1 +1,0 @@
-QuickTalk - Real-Time Chat Application
