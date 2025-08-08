@@ -17,8 +17,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors({
-  origin:['https://quickt4lk.vercel.app',"http://localhost:3000"],
-  credentials:true, 
+  origin:'https://quickt4lk.vercel.app',
+ credentials:true, 
 }))
 
 app.use(cookieparser());
