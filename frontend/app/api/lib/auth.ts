@@ -29,7 +29,6 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials) return null;
         try {
-          console.log({email:credentials.email,password: credentials.password})
           const response = await axios.post(
             `${process.env.NEXT_PUBLIC_Url}/api/user/login`,
             {
@@ -52,11 +51,29 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET||"secret",
+
+  secret: process.env.NEXTAUTH_SECRET || "secret",
+
   pages: {
     signIn: "/login",
     error: "/login?error=authentication",
   },
+
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "none", // required if backend and frontend are on different domains
+        secure: process.env.NODE_ENV === "production", // only secure in prod
+        path: "/",
+      },
+    },
+  },
+
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "credentials") return true;
@@ -96,10 +113,13 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user, account }) {
       if (account?.provider === "credentials" && user?.id) {
         token.userId = user.id;
-        token.email=user.email
+        token.email = user.email;
       }
 
-      if (["google", "facebook", "github"].includes(account?.provider ?? "") && user?.email) {
+      if (
+        ["google", "facebook", "github"].includes(account?.provider ?? "") &&
+        user?.email
+      ) {
         try {
           const response = await axios.get(
             `${process.env.NEXT_PUBLIC_Url}/api/user/${user.email}`
@@ -118,15 +138,16 @@ export const authOptions: AuthOptions = {
 
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-          session.user.email=String(token.email)
+        session.user.email = String(token.email);
       }
       return session;
     },
   },
+
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
+
   debug: process.env.NODE_ENV === "development",
 };
-
