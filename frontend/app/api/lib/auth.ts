@@ -60,19 +60,20 @@ export const authOptions: AuthOptions = {
   },
 
   cookies: {
-    sessionToken: {
-      name:
-        process.env.NEXT_PUBLIC_NODE_ENV === "production"
-          ? "__Secure-next-auth.session-token"
-          : "next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "none",
-        secure: process.env.NEXT_PUBLIC_NODE_ENV === "production", // only secure in prod
-        path: "/",
-      },
+  sessionToken: {
+    name:
+      process.env.NODE_ENV === "production"
+        ? "__Secure-next-auth.session-token"
+        : "next-auth.session-token",
+    options: {
+      httpOnly: true,
+      sameSite: "none",                     // required for cross-site
+      secure: process.env.NODE_ENV === "production", // true on Vercel (HTTPS)
+      path: "/",
     },
   },
+},
+
 
   callbacks: {
     async signIn({ user, account }) {
@@ -149,5 +150,5 @@ export const authOptions: AuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
 
-  debug: process.env.NEXT_PUBLIC_NODE_ENV === "development",
+  debug: process.env.NODE_ENV === "development",
 };
