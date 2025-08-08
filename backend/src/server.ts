@@ -52,7 +52,6 @@ wss.on("connection", (ws: WebSocket) => {
     try {
       const parsed = JSON.parse(data.toString());
 
-      // User comes online
       if (parsed.type === "online") {
         userId = parsed.userId;
         userSocketMap.set(userId, ws);

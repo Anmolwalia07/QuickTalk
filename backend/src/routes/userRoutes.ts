@@ -8,11 +8,11 @@ router.post('/register',handleRegister)
 
 router.post('/login',handleLogin)
 
-router.get('/:email',logSessionToken,getDetails)
+router.get('/:email',getDetails)
 
-router.get('/alluser/name',logSessionToken,getUsersname)
+router.get('/alluser/name',getUsersname)
 
-router.get('/details/:email',logSessionToken,getUserDetails)
+router.get('/details/:email',getUserDetails)
 
 router.post('/addFriend',logSessionToken,addFriend)
 
