@@ -253,7 +253,13 @@ export const addFriend = async (req: Request, res: Response) => {
       },
     });
 
-    if (existingFriend) {
+    const existingFriend2 = await prisma.friend.findFirst({
+      where: {
+        userId:friendId,
+        friendId:userId,
+      },
+    });
+    if (existingFriend || existingFriend2) {
       return res.status(409).json({ message: "Friend request already exists" });
     }
 
