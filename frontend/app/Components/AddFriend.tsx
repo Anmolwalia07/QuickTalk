@@ -92,7 +92,7 @@ export default function AddFriend() {
           !contactNames.includes(usr.name) &&
           !sentRequestNames.includes(usr.name)
       )
-      .slice(0, 4);
+      .slice(0, 1);
   }, [allUsernames, user.name, contactNames, sentRequestNames]);
 
   const handleSendRequest = async (friendId: string) => {

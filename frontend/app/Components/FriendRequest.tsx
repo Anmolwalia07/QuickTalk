@@ -69,7 +69,6 @@ export default function FriendRequest() {
     }
   };
 
-  const bgMain = darkMode ? "bg-gray-900" : "bg-white";
   const textMain = darkMode ? "text-white" : "text-gray-900";
   const borderMain = darkMode ? "border-gray-700" : "border-gray-200";
 
