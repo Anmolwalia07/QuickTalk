@@ -73,18 +73,16 @@ export default function RegisterPage() {
     e.preventDefault();
     if (validateForm()) {
       setIsLoading(true);
-        setTimeout(() => {
         axios.post(`${process.env.NEXT_PUBLIC_Url}/api/user/register`,formData).then((res)=>{
           if(res.status===201){
-            router.push('/login');
             setIsLoading(false);
+            router.push('/login'); 
           }
         }).catch((err)=>{
           console.log(err)
           setIsLoading(false);
      })
-        
-      }, 1500);
+      
     }
   };
 
